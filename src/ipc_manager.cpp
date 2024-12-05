@@ -26,12 +26,7 @@ void create_process_with_pipe() {
         close(pipe_fd[0]);
         wait(NULL);  // Wait for child to finish
     }
-}
-#include "../include/ipc_manager.h"
-#include <iostream>
-#include <unistd.h>
-#include <cstring>
-#include <sys/wait.h>
+
 
 void parent_to_child_communication() {
 	int pipe_fd[2];
