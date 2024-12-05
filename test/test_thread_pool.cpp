@@ -5,7 +5,7 @@
 TEST(ThreadPoolTest, CreateThreadsTest) {
     ThreadPool pool(5);
     pool.create_threads();
-    ASSERT_TRUE(true);  // Placeholder for actual thread testing
+    ASSERT_TRUE(true); 
 }
 
 
