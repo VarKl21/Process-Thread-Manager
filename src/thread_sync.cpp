@@ -1,29 +1,44 @@
-#include "thread_sync.h"
+#include "../include/thread_sync.h"
 #include <iostream>
 #include <pthread.h>
+#include <queue>
+#include <vector>
 
-// Mutex for thread synchronization
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+struct Thread {
+	int id;
+	int priority;
+};
 
-// Function executed by the thread
-void* thread_function(void* arg) {
-    pthread_mutex_lock(&mutex);  // Lock the mutex
-    std::cout << "Thread is safely accessing shared resource!" << std::endl;
-    pthread_mutex_unlock(&mutex);  // Unlock the mutex
-    return NULL;
+struct ComparePriority {
+	bool operator()(Thread const& t1, Thread const& t2) {
+    	return t1.priority < t2.priority;  // Higher priority first
+	}
+};
+
+pthread_mutex_t shared_resource = PTHREAD_MUTEX_INITIALIZER;
+
+void sync_threads() {
+	std::cout << "Synchronizing threads..." << std::endl;
+	// You can add thread synchronization logic here, for example:
+	pthread_mutex_lock(&shared_resource);
+	std::cout << "Thread synchronized" << std::endl;
+	pthread_mutex_unlock(&shared_resource);
 }
 
-// Synchronize threads by creating and joining one
-void sync_threads() {
-    pthread_t thread;
+void priority_inheritance_demo() {
+	std::priority_queue<Thread, std::vector<Thread>, ComparePriority> thread_queue;
 
-    // Create a thread and run thread_function
-    pthread_create(&thread, NULL, thread_function, NULL);
+	thread_queue.push({1, 10});  // Thread 1 with priority 10
+	thread_queue.push({2, 20});  // Thread 2 with priority 20
 
-    // Wait for the thread to complete
-    pthread_join(thread, NULL);
+	while (!thread_queue.empty()) {
+    	Thread t = thread_queue.top();
+    	thread_queue.pop();
 
-    std::cout << "Threads synchronized!" << std::endl;
+    	pthread_mutex_lock(&shared_resource);
+    	std::cout << "Thread " << t.id << " (Priority " << t.priority << ") is executing.\n";
+    	pthread_mutex_unlock(&shared_resource);
+	}
 }
 
 
