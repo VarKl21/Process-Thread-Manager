@@ -21,10 +21,6 @@ void ResourceManager::releaseResource(const std::string& resourceName, int quant
 int ResourceManager::checkResourceAvailability(const std::string& resourceName) {
     return resources[resourceName];
 }
-#include "../include/resource_manager.h"
-#include <iostream>
-#include <map>
-#include <string>
 
 std::map<std::string, int> resources;
 
