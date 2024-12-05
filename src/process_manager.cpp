@@ -18,25 +18,32 @@ int num_processes;
 void create_processes(int num) {
 	std::cout << "Creating " << num << " processes..." << std::endl;
 	for (int i = 1; i <= num; ++i) {
-    	std::cout << "Process " << i << " created." << std::endl;
+    	pid_t pid = fork();
+   	 
+    	if (pid == -1) {
+        	std::cerr << "Error creating process " << i << std::endl;
+    	} else if (pid == 0) {
+        	// In child process
+        	std::cout << "Process " << i << " created. Process ID: " << getpid() << std::endl;
+       	 
+        	// Example: Child process can run a task (e.g., listing files)
+        	execlp("ls", "ls", NULL);  // This will list files in the current directory
+       	 
+        	// Exit the child process after executing the task
+        	exit(0);
+    	} else {
+        	// In parent process
+        	std::cout << "Parent waiting for process " << i << " to finish..." << std::endl;
+        	waitpid(pid, NULL, 0);  // Wait for child process to terminate
+    	}
 	}
 	std::cout << "Processes completed and terminated." << std::endl;
 }
 
 // Function to manage thread pool
 void manage_thread_pool(int num) {
-	std::cout << "Creating " << num << " threads..." << std::endl;
-	std::vector<std::thread> threads;
-
-	for (int i = 1; i <= num; ++i) {
-    	threads.push_back(std::thread([]() {
-        	std::cout << "Thread started." << std::endl;
-    	}));
-	}
-
-	for (auto& th : threads) {
-    	th.join();
-	}
+	std::cout << "Creating " << num << " threads using ThreadPool..." << std::endl;
+	ThreadPool pool(num);  // Use the ThreadPool class to manage threads
 
 	std::cout << "Threads are performing their tasks concurrently." << std::endl;
 }
@@ -74,7 +81,7 @@ int main() {
             	create_processes(num_processes);
             	break;
         	case 2:
-            	manage_thread_pool(num_threads);
+            	manage_thread_pool(num_threads);  // Managing thread pool with actual threads
             	break;
         	case 3:
             	std::cout << "Deadlock detection initiated..." << std::endl;
@@ -112,4 +119,3 @@ int main() {
 	std::cout << "Exiting program..." << std::endl;
 	return 0;
 }
-
